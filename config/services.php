@@ -35,4 +35,31 @@ return [
         ],
     ],
 
+    'node' => [
+        'path' => env('NODE_PATH', 'node'),
+    ],
+
+    'meilisearch' => [
+        'host' => env('MEILISEARCH_HOST', 'http://localhost:7700'),
+        'key' => env('MEILISEARCH_KEY'),
+        'index_prefix' => env('MEILISEARCH_INDEX_PREFIX', 'databank_'),
+    ],
+
+    'duplicate_detection' => [
+        'similarity_threshold' => env('DUPLICATE_SIMILARITY_THRESHOLD', 0.8),
+        'min_content_length' => env('DUPLICATE_MIN_CONTENT_LENGTH', 10),
+    ],
+
+    'exports' => [
+        'max_items_per_export' => env('MAX_ITEMS_PER_EXPORT', 50),
+        'cleanup_after_days' => env('EXPORT_CLEANUP_DAYS', 7),
+        'storage_disk' => env('EXPORT_STORAGE_DISK', 'local'),
+    ],
+
+    'rate_limits' => [
+        'authoring' => env('RATE_LIMIT_AUTHORING', '30,1'), // 30 per minute
+        'search' => env('RATE_LIMIT_SEARCH', '100,1'), // 100 per minute
+        'storage' => env('RATE_LIMIT_STORAGE', '10,1'), // 10 per minute
+    ],
+
 ];
