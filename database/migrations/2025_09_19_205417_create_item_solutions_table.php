@@ -12,8 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('item_solutions', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->uuidMorphs('itemable');
+            $table->text('text_ar');
+            $table->text('latex')->nullable();
+            $table->string('solution_type')->default('worked');
             $table->timestamps();
+            $table->index(['itemable_type', 'itemable_id']);
         });
     }
 

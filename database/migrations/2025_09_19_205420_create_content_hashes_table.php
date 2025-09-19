@@ -12,8 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('content_hashes', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->uuid('item_draft_id');
+            $table->string('content_hash', 64);
+            $table->text('normalized_content');
+            $table->json('similarity_tokens')->nullable();
             $table->timestamps();
+            $table->foreign('item_draft_id')->references('id')->on('item_drafts')->onDelete('cascade');
+            $table->unique('content_hash');
+            $table->index('item_draft_id');
         });
     }
 

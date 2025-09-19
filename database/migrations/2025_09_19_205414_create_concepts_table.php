@@ -12,8 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('concepts', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->string('code', 50)->unique();
+            $table->string('name_ar');
+            $table->string('name_en')->nullable();
+            $table->text('description_ar')->nullable();
+            $table->text('description_en')->nullable();
+            $table->string('grade')->nullable();
+            $table->string('strand')->nullable();
+            $table->json('meta')->nullable();
             $table->timestamps();
+            $table->index(['grade', 'strand']);
         });
     }
 

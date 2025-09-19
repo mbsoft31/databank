@@ -12,8 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('media_assets', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->string('filename');
+            $table->string('mime_type');
+            $table->bigInteger('size_bytes');
+            $table->string('storage_path');
+            $table->json('meta')->nullable();
+            $table->string('created_by')->nullable();
             $table->timestamps();
+            $table->index('created_by');
         });
     }
 

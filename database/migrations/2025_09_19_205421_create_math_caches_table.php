@@ -13,7 +13,13 @@ return new class extends Migration
     {
         Schema::create('math_caches', function (Blueprint $table) {
             $table->id();
+            $table->text('latex_input');
+            $table->string('engine')->default('mathjax');
+            $table->boolean('display_mode')->default(false);
+            $table->text('rendered_output');
+            $table->string('output_format')->default('svg');
             $table->timestamps();
+            $table->unique(['latex_input', 'engine', 'display_mode']);
         });
     }
 

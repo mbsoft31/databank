@@ -12,8 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('exports', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->string('kind');
+            $table->json('params');
+            $table->string('status')->default('pending');
+            $table->string('file_path')->nullable();
+            $table->string('error_message')->nullable();
+            $table->timestamp('completed_at')->nullable();
+            $table->string('requested_by')->nullable();
             $table->timestamps();
+            $table->index(['status', 'kind']);
         });
     }
 

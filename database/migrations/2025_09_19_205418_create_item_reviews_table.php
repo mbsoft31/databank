@@ -12,8 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('item_reviews', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->uuid('item_draft_id');
+            $table->string('reviewer_id');
+            $table->string('status');
+            $table->text('feedback')->nullable();
+            $table->json('rubric_scores')->nullable();
+            $table->decimal('overall_score', 3, 1)->nullable();
             $table->timestamps();
+            $table->foreign('item_draft_id')->references('id')->on('item_drafts')->onDelete('cascade');
+            $table->index(['item_draft_id', 'status']);
         });
     }
 
