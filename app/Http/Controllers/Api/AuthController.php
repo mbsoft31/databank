@@ -354,4 +354,9 @@ class AuthController extends Controller
             default => ['items:view', 'exports:view', 'profile:update'], // viewer
         };
     }
+
+    public function user()
+    {
+        return response()->json(['user' => Auth::user()]);
+    }
 }
