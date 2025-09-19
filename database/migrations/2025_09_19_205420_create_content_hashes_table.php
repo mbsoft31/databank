@@ -15,11 +15,12 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('item_draft_id');
             $table->string('content_hash', 64);
-            $table->text('normalized_content');
-            $table->json('similarity_tokens')->nullable();
+            $table->text('normalized_content'); // Use text instead of string for longer content
+            $table->longText('similarity_tokens'); // Use longText for JSON storage
             $table->timestamps();
             $table->foreign('item_draft_id')->references('id')->on('item_drafts')->onDelete('cascade');
-            $table->unique('content_hash');
+            $table->unique(['content_hash', 'item_draft_id'], 'content_hash_item_unique');
+            $table->index('content_hash');
             $table->index('item_draft_id');
         });
     }

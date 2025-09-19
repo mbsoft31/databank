@@ -15,8 +15,6 @@ class MathCache extends Model
 {
     use HasFactory;
 
-    protected $table = 'math_cache';
-
     protected $fillable = [
         'latex_input',
         'engine',

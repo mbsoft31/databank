@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs';
 
+// eslint-disable-next-line no-undef
 const args = process.argv.slice(2);
 const engineArg = args.find(a => a.startsWith('--engine='));
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const engine = engineArg ? engineArg.split('=')[1] : 'mathjax';
 
 const input = JSON.parse(readFileSync(0, 'utf8'));

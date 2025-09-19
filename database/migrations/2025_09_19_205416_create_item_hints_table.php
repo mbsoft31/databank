@@ -18,7 +18,6 @@ return new class extends Migration
             $table->text('latex')->nullable();
             $table->integer('order_index')->default(0);
             $table->timestamps();
-            $table->index(['itemable_type', 'itemable_id']);
         });
     }
 

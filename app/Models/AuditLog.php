@@ -2,12 +2,10 @@
 // app/Models/AuditLog.php
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class AuditLog extends Model
@@ -53,9 +51,9 @@ class AuditLog extends Model
     ];
 
     // Relationships
-    public function user(): BelongsTo
+    public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     public function auditable(): MorphTo
@@ -183,15 +181,15 @@ class AuditLog extends Model
         return compact('browser', 'platform');
     }
 
-    // Helper Methods
-    public function hasChanges(): bool
+    // Helper Methods - RENAMED to avoid conflict with Eloquent Model
+    public function hasAuditChanges(): bool  // Changed from hasChanges() to hasAuditChanges()
     {
         return !empty($this->old_values) || !empty($this->new_values);
     }
 
     public function getChangedFields(): array
     {
-        if (!$this->is_update || !$this->hasChanges()) {
+        if (!$this->is_update || !$this->hasAuditChanges()) {
             return [];
         }
 
@@ -228,7 +226,7 @@ class AuditLog extends Model
 
     public function getAllChanges(): array
     {
-        if (!$this->is_update || !$this->hasChanges()) {
+        if (!$this->is_update || !$this->hasAuditChanges()) {
             return [];
         }
 
@@ -254,11 +252,11 @@ class AuditLog extends Model
         $modelName = $this->model_name;
         $action = strtolower($this->action_label);
 
-        $description = sprintf("%s %s %s", $userName, $action, $modelName);
+        $description = "{$userName} {$action} {$modelName}";
 
-        if ($this->is_update && $this->hasChanges()) {
+        if ($this->is_update && $this->hasAuditChanges()) {
             $fieldCount = count($this->getChangedFields());
-            $description .= " ($fieldCount field" . ($fieldCount !== 1 ? 's' : '') . " changed)";
+            $description .= " ({$fieldCount} field" . ($fieldCount !== 1 ? 's' : '') . " changed)";
         }
 
         return $description;
@@ -273,7 +271,7 @@ class AuditLog extends Model
             'model' => $this->model_name,
             'timestamp' => $this->created_at->toISOString(),
             'description' => $this->getDescription(),
-            'has_changes' => $this->hasChanges(),
+            'has_audit_changes' => $this->hasAuditChanges(),  // Updated method name
             'changes_count' => $this->changes_count,
             'ip_address' => $this->ip_address,
             'browser_info' => $this->browser_info,
@@ -328,13 +326,15 @@ class AuditLog extends Model
     protected function getActionColor(): string
     {
         return match($this->action) {
-            'created', 'approved' => 'green',
+            'created' => 'green',
             'updated' => 'blue',
-            'deleted', 'rejected' => 'red',
+            'deleted' => 'red',
+            'viewed' => 'gray',
             'exported' => 'purple',
             'published' => 'indigo',
             'reviewed' => 'yellow',
-            'viewed' => 'gray',
+            'approved' => 'green',
+            'rejected' => 'red',
             default => 'gray',
         };
     }
@@ -359,7 +359,7 @@ class AuditLog extends Model
         ]);
     }
 
-    public static function getActivityFeed(int $limit = 50, array $filters = []): Collection
+    public static function getActivityFeed(int $limit = 50, array $filters = []): \Illuminate\Database\Eloquent\Collection
     {
         $query = static::with('user')
             ->orderBy('created_at', 'desc')
@@ -388,7 +388,7 @@ class AuditLog extends Model
         return $query->get();
     }
 
-    public static function getModelHistory(Model $model): Collection
+    public static function getModelHistory(Model $model): \Illuminate\Database\Eloquent\Collection
     {
         return static::forModel(get_class($model), $model->getKey())
             ->with('user')

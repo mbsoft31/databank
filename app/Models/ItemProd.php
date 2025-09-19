@@ -16,8 +16,6 @@ class ItemProd extends Model
 {
     use HasFactory, HasUuids, Searchable;
 
-    protected $table = 'item_prod';
-
     protected $fillable = [
         'source_draft_id',
         'stem_ar',
@@ -87,17 +85,42 @@ class ItemProd extends Model
 
     public function concepts(): BelongsToMany
     {
-        return $this->belongsToMany(Concept::class, 'item_prod_concepts');
+        return $this->belongsToMany(
+            Concept::class,
+            'item_prod_concepts', // Correct pivot table name
+            'item_prod_id',
+            'concept_id'
+        );
     }
 
     public function tags(): BelongsToMany
     {
-        return $this->belongsToMany(Tag::class, 'item_prod_tags');
+        return $this->belongsToMany(
+            Tag::class,
+            'item_prod_tags', // Correct pivot table name
+            'item_prod_id',
+            'tag_id'
+        );
     }
 
     public function options(): MorphMany
     {
         return $this->morphMany(ItemOption::class, 'itemable')->orderBy('order_index');
+    }
+
+    public function hints(): MorphMany
+    {
+        return $this->morphMany(ItemHint::class, 'itemable')->orderBy('order_index');
+    }
+
+    public function solutions(): MorphMany
+    {
+        return $this->morphMany(ItemSolution::class, 'itemable');
+    }
+
+    public function mediaAssets(): MorphMany
+    {
+        return $this->morphMany(MediaAsset::class, 'itemable');
     }
 
     public function correctOptions(): MorphMany
@@ -112,21 +135,6 @@ class ItemProd extends Model
         return $this->morphMany(ItemOption::class, 'itemable')
             ->where('is_correct', false)
             ->orderBy('order_index');
-    }
-
-    public function hints(): MorphMany
-    {
-        return $this->morphMany(ItemHint::class, 'itemable')->orderBy('order_index');
-    }
-
-    public function solutions(): MorphMany
-    {
-        return $this->morphMany(ItemSolution::class, 'itemable');
-    }
-
-    public function mediaAssets(): BelongsToMany
-    {
-        return $this->belongsToMany(MediaAsset::class, 'item_prod_media');
     }
 
     // Scopes

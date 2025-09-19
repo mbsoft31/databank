@@ -67,7 +67,12 @@ class Concept extends Model
 
     public function itemProds(): BelongsToMany
     {
-        return $this->belongsToMany(ItemProd::class, 'item_prod_concepts');
+        return $this->belongsToMany(
+            ItemProd::class,
+            'item_prod_concepts', // Correct table name
+            'concept_id',
+            'item_prod_id'
+        );
     }
 
     // Scopes

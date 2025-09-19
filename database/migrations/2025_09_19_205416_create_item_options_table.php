@@ -19,7 +19,6 @@ return new class extends Migration
             $table->boolean('is_correct')->default(false);
             $table->integer('order_index')->default(0);
             $table->timestamps();
-            $table->index(['itemable_type', 'itemable_id']);
         });
     }
 

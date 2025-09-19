@@ -18,7 +18,6 @@ return new class extends Migration
             $table->text('latex')->nullable();
             $table->string('solution_type')->default('worked');
             $table->timestamps();
-            $table->index(['itemable_type', 'itemable_id']);
         });
     }
 

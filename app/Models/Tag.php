@@ -46,7 +46,12 @@ class Tag extends Model
 
     public function itemProds(): BelongsToMany
     {
-        return $this->belongsToMany(ItemProd::class, 'item_prod_tags');
+        return $this->belongsToMany(
+            ItemProd::class,
+            'item_prod_tags', // Correct table name
+            'tag_id',
+            'item_prod_id'
+        );
     }
 
     // Scopes
