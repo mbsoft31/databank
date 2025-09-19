@@ -2,54 +2,85 @@
 // app/Jobs/GenerateExportJob.php
 namespace App\Jobs;
 
-use App\Enums\ExportStatus;
-use App\Models\Export;
+use App\Models\{Export, ItemProd};
 use App\Services\ExportService;
-use App\Services\MathRenderingService;
+use App\Enums\ExportStatus;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
+use Illuminate\Support\Facades\{Log, Storage};
+use Exception;
 
 class GenerateExportJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(protected Export $export) {}
+    public Export $export;
+    public int $timeout = 300; // 5 minutes
+    public int $tries = 3;
 
-    public function handle(ExportService $exportService, MathRenderingService $mathService): void
+    public function __construct(Export $export)
+    {
+        $this->export = $export;
+        $this->onQueue('exports');
+    }
+
+    public function handle(ExportService $exportService): void
     {
         try {
-            $this->export->update(['status' => ExportStatus::Processing]);
+            // Mark as processing
+            $this->export->markAsProcessing();
 
-            $filePath = match ($this->export->kind) {
-                'worksheet_markdown' => $exportService->generateMarkdown($this->export),
-                'worksheet_html' => $exportService->generateHTML($this->export, $mathService),
-                'worksheet_pdf' => $exportService->generatePDF($this->export, $mathService),
-                default => throw new \InvalidArgumentException("Unknown export kind: {$this->export->kind}")
+            // Get items to export
+            $items = ItemProd::with(['concepts', 'tags', 'options', 'hints', 'solutions'])
+                ->whereIn('id', $this->export->params['item_ids'] ?? [])
+                ->get();
+
+            if ($items->isEmpty()) {
+                throw new Exception('No items found for export');
+            }
+
+            // Generate export based on kind
+            $filePath = match($this->export->kind) {
+                'worksheet_pdf' => $exportService->generateWorksheetPDF($items, $this->export->params),
+                'worksheet_html' => $exportService->generateWorksheetHTML($items, $this->export->params),
+                'worksheet_markdown' => $exportService->generateWorksheetMarkdown($items, $this->export->params),
+                'item_bank_json' => $exportService->generateItemBankJSON($items, $this->export->params),
+                default => throw new Exception("Unsupported export kind: {$this->export->kind}")
             };
 
-            $this->export->update([
-                'status' => ExportStatus::Completed,
+            // Mark as completed
+            $this->export->markAsCompleted($filePath);
+
+            Log::info("Export completed successfully", [
+                'export_id' => $this->export->id,
+                'kind' => $this->export->kind,
+                'item_count' => $items->count(),
                 'file_path' => $filePath,
-                'completed_at' => now(),
             ]);
 
-        } catch (\Exception $e) {
-            $this->export->update([
-                'status' => ExportStatus::Failed,
-                'error_message' => $e->getMessage(),
+        } catch (Exception $e) {
+            $this->export->markAsFailed($e->getMessage());
+
+            Log::error("Export failed", [
+                'export_id' => $this->export->id,
+                'kind' => $this->export->kind,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
+
             throw $e;
         }
     }
 
-    public function failed(\Throwable $exception): void
+    public function failed(Exception $exception): void
     {
-        $this->export->update([
-            'status' => ExportStatus::Failed,
-            'error_message' => $exception->getMessage(),
+        $this->export->markAsFailed($exception->getMessage());
+
+        Log::error("Export job failed permanently", [
+            'export_id' => $this->export->id,
+            'error' => $exception->getMessage(),
         ]);
     }
 }
