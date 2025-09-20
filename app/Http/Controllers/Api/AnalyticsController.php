@@ -12,8 +12,8 @@ class AnalyticsController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth:sanctum', 'can:admin-access']);
-        $this->middleware('throttle:60,1'); // 60 requests per minute
+        /*$this->middleware(['auth:sanctum', 'can:admin-access']);
+        $this->middleware('throttle:60,1'); // 60 requests per minute*/
     }
 
     /**

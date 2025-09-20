@@ -15,8 +15,8 @@ class ItemDraftController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:sanctum');
-        $this->middleware('throttle:authoring')->except(['index', 'show']);
+        /*$this->middleware('auth:sanctum');
+        $this->middleware('throttle:authoring')->except(['index', 'show']);*/
     }
 
     public function index(Request $request)

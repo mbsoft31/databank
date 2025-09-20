@@ -12,8 +12,8 @@ class ReviewController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:sanctum');
-        $this->middleware('can:review,App\Models\ItemReview')->except(['index', 'show']);
+        /*$this->middleware('auth:sanctum');
+        $this->middleware('can:review,App\Models\ItemReview')->except(['index', 'show']);*/
     }
 
     /**

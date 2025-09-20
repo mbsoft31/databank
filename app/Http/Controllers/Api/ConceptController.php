@@ -11,8 +11,8 @@ class ConceptController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:sanctum');
-        $this->middleware('can:manage-concepts')->except(['index', 'show']);
+        /*$this->middleware('auth:sanctum');
+        $this->middleware('can:manage-concepts')->except(['index', 'show']);*/
     }
 
     /**

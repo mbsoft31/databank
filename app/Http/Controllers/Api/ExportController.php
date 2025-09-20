@@ -15,8 +15,8 @@ class ExportController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:sanctum');
-        $this->middleware('throttle:storage')->only(['store']);
+        /*$this->middleware('auth:sanctum');
+        $this->middleware('throttle:storage')->only(['store']);*/
     }
 
     /**
