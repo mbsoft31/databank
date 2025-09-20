@@ -9,6 +9,8 @@ use App\Http\Requests\UpdateItemDraftRequest;
 use App\Models\ItemDraft;
 use App\Services\DuplicateDetectionService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
 class ItemDraftController extends Controller
@@ -21,7 +23,7 @@ class ItemDraftController extends Controller
 
     public function index(Request $request)
     {
-        $this->authorize('viewAny', ItemDraft::class);
+        Gate::authorize('viewAny', ItemDraft::class);
 
         $query = ItemDraft::with(['concepts', 'tags', 'reviews'])
             ->when($request->status, fn($q) => $q->byStatus($request->status))
@@ -40,7 +42,7 @@ class ItemDraftController extends Controller
 
     public function store(StoreItemDraftRequest $request, DuplicateDetectionService $duplicateService)
     {
-        $this->authorize('create', ItemDraft::class);
+        Gate::authorize('create', ItemDraft::class);
 
         $validated = $request->validated();
         $validated['created_by'] = auth()->id();
@@ -79,7 +81,7 @@ class ItemDraftController extends Controller
 
     public function show(ItemDraft $itemDraft)
     {
-        $this->authorize('view', $itemDraft);
+        Gate::authorize('view', $itemDraft);
 
         return response()->json([
             'data' => $itemDraft->load(['concepts', 'tags', 'options', 'hints', 'solutions', 'reviews.reviewer']),
@@ -88,7 +90,7 @@ class ItemDraftController extends Controller
 
     public function update(UpdateItemDraftRequest $request, ItemDraft $itemDraft)
     {
-        $this->authorize('update', $itemDraft);
+        Gate::authorize('update', $itemDraft);
 
         $validated = $request->validated();
         $validated['updated_by'] = auth()->id();
@@ -110,7 +112,7 @@ class ItemDraftController extends Controller
 
     public function destroy(ItemDraft $itemDraft)
     {
-        $this->authorize('delete', $itemDraft);
+        Gate::authorize('delete', $itemDraft);
 
         $itemDraft->delete();
 
@@ -119,7 +121,7 @@ class ItemDraftController extends Controller
 
     public function submitForReview(ItemDraft $itemDraft)
     {
-        $this->authorize('submitForReview', $itemDraft);
+        Gate::authorize('submitForReview', $itemDraft);
 
         $itemDraft->update(['status' => ItemStatus::InReview]);
 
@@ -131,7 +133,7 @@ class ItemDraftController extends Controller
 
     public function publish(ItemDraft $itemDraft)
     {
-        $this->authorize('publish', $itemDraft);
+        Gate::authorize('publish', $itemDraft);
 
         if (!$itemDraft->canBePublished()) {
             return response()->json([

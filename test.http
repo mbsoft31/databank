@@ -9,7 +9,7 @@ Content-Type: application/json
 ###
 
 GET https://school.mouadh.tech/api/item-drafts?status=draft&difficulty_min=2&difficulty_max=4&per_page=10
-Authorization: Bearer 2|GB6ujTSpSn7Y8YcS2JEvGqWZA9zPgsV9kjOZUnSP9d24eda7
+Authorization: Bearer 3|wmmkjmW5n6e4YoG4UeppYGOJsTyaE6oDDg0YmjiWadf32e12
 
 
 ###
