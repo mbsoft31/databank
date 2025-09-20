@@ -5,3 +5,76 @@ Content-Type: application/json
     "email": "admin@mounir.edu.dz",
     "password": "password"
 }
+
+###
+
+GET https://school.mouadh.tech/api/item-drafts?status=draft&difficulty_min=2&difficulty_max=4&per_page=10
+Authorization: Bearer 2|GB6ujTSpSn7Y8YcS2JEvGqWZA9zPgsV9kjOZUnSP9d24eda7
+
+
+###
+POST http://localhost:8000/api/item-drafts
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: application/json
+
+{
+    "stem_ar": "أوجد قيمة x في المعادلة: 3x + 7 = 22",
+    "latex": "3x + 7 = 22",
+    "item_type": "multiple_choice",
+    "difficulty": 2.5,
+    "concept_ids": ["concept-uuid-here"],
+    "tag_codes": ["basic", "algebra"],
+    "options": [
+        {
+            "text_ar": "x = 5",
+            "is_correct": true,
+            "order_index": 0
+        },
+        {
+            "text_ar": "x = 3",
+            "is_correct": false,
+            "order_index": 1
+        }
+    ],
+    "hints": [
+        {
+            "text_ar": "ابدأ بطرح 7 من الطرفين",
+            "order_index": 0
+        }
+    ]
+}
+###
+
+GET http://localhost:8000/api/item-drafts/{item-uuid}/duplicates?threshold=0.8
+Authorization: Bearer YOUR_TOKEN_HERE
+###
+
+POST http://localhost:8000/api/item-prods/search
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: application/json
+
+{
+    "q": "معادلة خطية",
+    "filters": {
+        "item_type": "multiple_choice",
+        "difficulty_min": 2,
+        "difficulty_max": 4
+    },
+    "per_page": 15
+}
+###
+
+GET http://localhost:8000/api/concepts/statistics?grade=10&strand=algebra
+Authorization: Bearer YOUR_TOKEN_HERE
+###
+
+POST http://localhost:8000/api/tags
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: application/json
+
+{
+    "code": "advanced-algebra",
+    "name_ar": "جبر متقدم",
+    "name_en": "Advanced Algebra",
+    "color": "#3b82f6"
+}
